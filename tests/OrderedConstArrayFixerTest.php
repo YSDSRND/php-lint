@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace YSDS\Lint\Tests;
 
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
-use YSDS\Lint\OrderedArrayFixer;
+use YSDS\Lint\OrderedConstArrayFixer;
 
-class OrderedArrayFixerTest extends AbstractFixerTestCase
+class OrderedConstArrayFixerTest extends AbstractFixerTestCase
 {
     protected function createFixer()
     {
-        return new OrderedArrayFixer();
+        return new OrderedConstArrayFixer();
     }
 
     public function orderProvider()
@@ -20,8 +20,12 @@ class OrderedArrayFixerTest extends AbstractFixerTestCase
                 "<?php return ['a', 'b', 'c'];",
                 "<?php return ['b', 'c', 'a'];",
             ],
-            'does nothing when array contains non-strings' => [
+            'sorts single line array with integers' => [
                 "<?php return ['b', 'c', 1];",
+                "<?php return [1, 'b', 'c'];",
+            ],
+            'does nothing with array of expressions' => [
+                "<?php return [foo(), bar()];"
             ],
             'sorts multiline array' => [
                 <<<TXT
@@ -39,12 +43,19 @@ TXT,
 ];
 TXT,
             ],
-            'does nothing on multiline array when it contains non-strings' => [
+            'sorts array of constants' => [
                 <<<TXT
 <?php return [
-    'c',
-    'b',
-    1,
+    self::C,
+    static::A,
+    static::B,
+];
+TXT,
+                <<<TXT
+<?php return [
+    static::B,
+    static::A,
+    self::C,
 ];
 TXT,
             ],
