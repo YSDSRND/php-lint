@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace YSDS\Lint\Tests;
 
-
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 use YSDS\Lint\OrderedArrayFixer;
 

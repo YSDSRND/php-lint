@@ -28,5 +28,9 @@
         "psr-4": {
             "YSDS\\Lint\\Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "lint": "php-cs-fixer fix --dry-run --diff --diff-format=udiff --verbose --ansi",
+        "test": "phpunit"
     }
 }

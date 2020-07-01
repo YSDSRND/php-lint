@@ -22,3 +22,6 @@ Thumbs.db
 
 .phpunit*
 tests/config.php
+
+.php_cs.cache
+.php_cs
