@@ -39,7 +39,7 @@ class OrderedConstArrayFixer extends AbstractFixer
                 // make sure the elements actually contains a somewhat
                 // constant value before continuing. if the user has
                 // put a complex expression in the array we bail early.
-                if (!$this->tokensContainConstLikeValue($element)) {
+                if (!Util::isConstLike($element)) {
                     return [];
                 }
             }
@@ -61,7 +61,7 @@ class OrderedConstArrayFixer extends AbstractFixer
             }
 
             usort($elements, function (array $a, array $b) {
-                return $this->getContentOfTokens($a) <=> $this->getContentOfTokens($b);
+                return Util::getContentOfTokens($a) <=> Util::getContentOfTokens($b);
             });
 
             $out = [];
@@ -108,38 +108,6 @@ class OrderedConstArrayFixer extends AbstractFixer
         }
 
         return $elements;
-    }
-
-    /**
-     * @param Token[] $tokens
-     * @return string
-     */
-    protected function getContentOfTokens(array $tokens): string
-    {
-        $parts = array_map(fn ($token) => $token->getContent(), $tokens);
-        return implode('', $parts);
-    }
-
-    /**
-     * @param Token[] $tokens
-     * @return bool
-     */
-    protected function tokensContainConstLikeValue(array $tokens): bool
-    {
-        $len = count($tokens);
-
-        switch ($len) {
-            case 1:
-                // constants, constant strings, integer literals, float literals.
-                return $tokens[0]->isGivenKind([T_CONSTANT_ENCAPSED_STRING, T_LNUMBER, T_DNUMBER, T_STRING]);
-            case 3:
-                // class constant access.
-                return $tokens[0]->isGivenKind([T_STATIC, T_STRING])
-                    && $tokens[1]->isGivenKind(T_DOUBLE_COLON)
-                    && $tokens[2]->isGivenKind(T_STRING);
-        }
-
-        return false;
     }
 
     /**

@@ -120,28 +120,30 @@ class OrderedArrayKeysFixer extends AbstractFixer implements ConfigurationDefini
                 continue;
             }
 
+            [$possibleKey, $delimiterIndex] = Util::readExpressionUntil($tokens, $i, [[T_DOUBLE_ARROW]]);
+
             // we attempted to read a key-token that was not
             // a constant string. this can happen in arrays
             // with dynamic keys. unfortunately there's not
             // much we can do for that case.
-            if (!$token->isGivenKind(T_CONSTANT_ENCAPSED_STRING)) {
-                return [];
-            }
-            $buffer = [$token, new Token([T_WHITESPACE, ' '])];
-            $key = $token->getContent();
-
-            $i = $tokens->getNextMeaningfulToken($i);
-            $token = $tokens[$i];
-
-            // if we don't find a double arrow immediately
-            // after the key this is not an associative array.
-            if (!$token->isGivenKind(T_DOUBLE_ARROW)) {
+            if (!Util::isConstLike($possibleKey)) {
                 return [];
             }
 
-            $buffer[] = $token;
+            $i = $delimiterIndex;
+            $buffer = $possibleKey;
             $buffer[] = new Token([T_WHITESPACE, ' ']);
-            $i = $tokens->getNextMeaningfulToken($i);
+            $key = Util::getContentOfTokens($possibleKey);
+
+            $buffer[] = new Token([T_DOUBLE_ARROW, '=>']);
+            $buffer[] = new Token([T_WHITESPACE, ' ']);
+
+            $i = $tokens->getTokenNotOfKindSibling($i, 1, [
+                [T_WHITESPACE],
+                [T_COMMENT],
+                [T_DOC_COMMENT],
+                [T_DOUBLE_ARROW],
+            ]);
 
             [$value, $delimiterIndex] = Util::readExpressionUntil($tokens, $i, [',', [CT::T_ARRAY_SQUARE_BRACE_CLOSE]]);
             $buffer = array_merge($buffer, $value);
@@ -179,8 +181,6 @@ class OrderedArrayKeysFixer extends AbstractFixer implements ConfigurationDefini
     {
         return $tokens->isAllTokenKindsFound([
             CT::T_ARRAY_SQUARE_BRACE_OPEN,
-            T_CONSTANT_ENCAPSED_STRING,
-            T_DOUBLE_ARROW,
         ]);
     }
 

@@ -65,4 +65,37 @@ class Util
 
         return [$buffer, $i];
     }
+
+    /**
+     * @param Token[] $tokens
+     * @return bool
+     */
+    public static function isConstLike(array $tokens): bool
+    {
+        $len = count($tokens);
+
+        switch ($len) {
+            case 1:
+                // constants, constant strings, integer literals, float literals.
+                return $tokens[0]->isGivenKind([T_CONSTANT_ENCAPSED_STRING, T_LNUMBER, T_DNUMBER, T_STRING]);
+            case 3:
+                // class constant access. this is not totally accurate atm
+                // because a class name may contain a namespace path.
+                return $tokens[0]->isGivenKind([T_STATIC, T_STRING])
+                    && $tokens[1]->isGivenKind(T_DOUBLE_COLON)
+                    && $tokens[2]->isGivenKind(T_STRING);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Token[] $tokens
+     * @return string
+     */
+    public static function getContentOfTokens(array $tokens): string
+    {
+        $parts = array_map(fn ($token) => $token->getContent(), $tokens);
+        return implode('', $parts);
+    }
 }

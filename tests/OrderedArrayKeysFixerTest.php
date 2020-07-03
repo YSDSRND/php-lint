@@ -55,6 +55,20 @@ TXT,
 ];
 TXT,
             ],
+            'sorts array of const keys' => [
+                <<<TXT
+<?php return [
+    static::A => fn () => null,
+    static::B => fn () => null,
+];
+TXT,
+                <<<TXT
+<?php return [
+    static::B => fn () => null,
+    static::A => fn () => null,
+];
+TXT,
+            ],
         ];
     }
 
