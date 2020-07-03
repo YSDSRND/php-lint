@@ -27,6 +27,9 @@ class OrderedArrayFixerTest extends AbstractFixerTestCase
             'does nothing with array of expressions' => [
                 "<?php return [foo(), bar()];",
             ],
+            'does nothing where one element is non-const' => [
+                "<?php return ['c', b(), a()];",
+            ],
             'sorts multiline array' => [
                 <<<TXT
 <?php return [

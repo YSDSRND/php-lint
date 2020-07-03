@@ -23,6 +23,9 @@ class OrderedArrayKeysFixerTest extends AbstractFixerTestCase
             'does not change sorted single line array' => [
                 "<?php return ['a' => 1, 'b' => 2, 'c' => 3];",
             ],
+            'does not change array with one non-const key' => [
+                "<?php return [b() => 2, 'a' => 1];",
+            ],
             'sorts multi line array' => [
                 <<<TXT
 <?php return [
