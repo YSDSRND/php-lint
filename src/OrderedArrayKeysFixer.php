@@ -16,15 +16,6 @@ use PhpCsFixer\Tokenizer\Tokens;
 
 class OrderedArrayKeysFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
 {
-    const BLOCK_INCREMENTS = [
-        '(' => 1,
-        ')' => -1,
-        '[' => 1,
-        ']' => -1,
-        '{' => 1,
-        '}' => -1,
-    ];
-
     /**
      * @var int
      */
@@ -150,40 +141,14 @@ class OrderedArrayKeysFixer extends AbstractFixer implements ConfigurationDefini
 
             $buffer[] = $token;
             $buffer[] = new Token([T_WHITESPACE, ' ']);
-            $blockCounter = 0;
             $i = $tokens->getNextMeaningfulToken($i);
 
-            while ($i <= $end) {
-                $token = $tokens[$i];
-                $buffer[] = $token;
+            [$value, $delimiterIndex] = Util::readExpressionUntil($tokens, $i, [',', [CT::T_ARRAY_SQUARE_BRACE_CLOSE]]);
+            $buffer = array_merge($buffer, $value);
+            $buffer[] = new Token(',');
+            $elements[$key] = $buffer;
 
-                $content = $token->getContent();
-
-                // if this token is a block delimiter we must
-                // increment the block counter so we correctly
-                // detect nested element delimiters.
-                $inc = static::BLOCK_INCREMENTS[$content] ?? null;
-                if ($inc !== null) {
-                    $blockCounter += $inc;
-                }
-
-                $isLastToken = $i === $end;
-                $isComma = $token->equals(',');
-
-                if (($isLastToken || $isComma) && $blockCounter === 0) {
-                    // since we may be rearranging array items
-                    // it is important that each pair ends with
-                    // a comma.
-                    if (!$isComma) {
-                        $buffer[] = new Token(',');
-                    }
-
-                    $elements[$key] = $buffer;
-                    break;
-                }
-
-                ++$i;
-            }
+            $i = $delimiterIndex;
         }
 
         return $elements;

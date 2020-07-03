@@ -12,15 +12,6 @@ use PhpCsFixer\Tokenizer\Tokens;
 
 class OrderedConstArrayFixer extends AbstractFixer
 {
-    const BLOCK_INCREMENTS = [
-        '(' => 1,
-        ')' => -1,
-        '{' => 1,
-        '}' => -1,
-        '[' => 1,
-        ']' => -1,
-    ];
-
     /**
      * @param \SplFileInfo $file
      * @param Tokens $tokens
@@ -38,7 +29,7 @@ class OrderedConstArrayFixer extends AbstractFixer
             $blockEnd = $tokens->findBlockEnd(Tokens::BLOCK_TYPE_ARRAY_SQUARE_BRACE, $i);
             $indexOfFirstElement = $tokens->getNextMeaningfulToken($i);
             $indexOfLastElement = $tokens->getPrevMeaningfulToken($blockEnd);
-            $elements = $this->findArrayElements($tokens, $i, $blockEnd);
+            $elements = $this->findArrayElements($tokens, $i, $indexOfLastElement);
 
             if ($elements === []) {
                 continue;
@@ -106,38 +97,14 @@ class OrderedConstArrayFixer extends AbstractFixer
     {
         /* @var Token[] $elements */
         $elements = [];
-        $i = $tokens->getNextMeaningfulToken($start);
-        $buffer = [];
-        $blockCount = 0;
+        $delimiters = [',', [CT::T_ARRAY_SQUARE_BRACE_CLOSE]];
+        $i = $start;
 
-        while ($i <= $end) {
-            /* @var Token $token */
-            $token = $tokens[$i];
-
-            if (!$buffer && $token->isGivenKind(T_WHITESPACE)) {
-                ++$i;
-                continue;
-            }
-
-            // bump the block count if we hit any block delimiters.
-            // this is to make sure that comma-tokens will not act
-            // as element delimiters unless we are outside a block.
-            $blockCount += static::BLOCK_INCREMENTS[$token->getContent()] ?? 0;
-
-            // if we found a comma outside a block we have most
-            // likely found the end of an array element. the end
-            // of the array can also mark such a case without
-            // the comma appearing.
-            if (($token->equals(',') && $blockCount === 0) || $i === $end) {
-                if ($buffer) {
-                    $elements[] = $buffer;
-                    $buffer = [];
-                }
-            } else {
-                $buffer[] = $token;
-            }
-
-            ++$i;
+        while ($i < $end) {
+            $i = $tokens->getNextMeaningfulToken($i);
+            [$value, $delimiterIndex] = Util::readExpressionUntil($tokens, $i, $delimiters);
+            $elements[] = $value;
+            $i = $delimiterIndex;
         }
 
         return $elements;
