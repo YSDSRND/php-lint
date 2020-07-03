@@ -10,7 +10,7 @@ use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
-class OrderedConstArrayFixer extends AbstractFixer
+class OrderedArrayFixer extends AbstractFixer
 {
     /**
      * @param \SplFileInfo $file

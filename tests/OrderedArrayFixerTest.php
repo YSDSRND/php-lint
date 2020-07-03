@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace YSDS\Lint\Tests;
 
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
-use YSDS\Lint\OrderedConstArrayFixer;
+use YSDS\Lint\OrderedArrayFixer;
 
-class OrderedConstArrayFixerTest extends AbstractFixerTestCase
+class OrderedArrayFixerTest extends AbstractFixerTestCase
 {
     protected function createFixer()
     {
-        return new OrderedConstArrayFixer();
+        return new OrderedArrayFixer();
     }
 
     public function orderProvider()
