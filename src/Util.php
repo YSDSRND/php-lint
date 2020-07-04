@@ -133,49 +133,40 @@ class Util
     }
 
     /**
-     * Finds the definition of the parent function. Only works for named functions,
-     * eg. class methods and top level functions.
-     *
      * @param Tokens $tokens
      * @param int $index
      * @return int|null
      */
-    public static function findParentFunction(Tokens $tokens, int $index): ?int
+    public static function findParentClass(Tokens $tokens, int $index): ?int
     {
-        // finding the parent function is more complex than
-        // just finding the parent block and looking for
-        // a function definition. there are other types
-        // of blocks that we must account for.
+        $increments = [
+            ['{', 1],
+            ['}', -1],
+        ];
+
         while ($index >= 0) {
-            $blockIndex = static::findParentBlock($tokens, $index);
-
-            if ($blockIndex === null) {
+            $index = static::findParentBlock($tokens, $index);
+            if ($index === null) {
                 return null;
             }
+            --$index;
 
-            $maybeCloseParenIndex = $tokens->getPrevMeaningfulToken($blockIndex);
-            if (!$tokens[$maybeCloseParenIndex]->equals(')')) {
-                return null;
+            // when we have a block edge available, loop backwards until
+            // we hit a class definition or another block edge. if we hit
+            // a block edge we probably weren't looking in the right place
+            // so start over and move to the next outer block.
+            while ($index >= 0) {
+                /* @var Token $token */
+                $token = $tokens[$index];
+                if ($token->isGivenKind(T_CLASS)) {
+                    return $index;
+                }
+                $incr = static::getBlockIncrementForToken($token, $increments);
+                if ($incr !== 0) {
+                    break;
+                }
+                --$index;
             }
-
-            $openParenIndex = $tokens->findBlockStart(Tokens::BLOCK_TYPE_PARENTHESIS_BRACE, $maybeCloseParenIndex);
-            $maybeNameIndex = $tokens->getPrevMeaningfulToken($openParenIndex);
-
-            // if the token before the opening parenthesis is not a string
-            // this might be some other type of block, possibly a control structure.
-            if ($maybeNameIndex === null || !$tokens[$maybeNameIndex]->isGivenKind(T_STRING)) {
-                $index = $blockIndex - 1;
-                continue;
-            }
-
-            $maybeFnIndex = $tokens->getPrevMeaningfulToken($maybeNameIndex);
-
-            if ($maybeFnIndex === null || !$tokens[$maybeFnIndex]->isGivenKind(T_FUNCTION)) {
-                $index = $blockIndex - 1;
-                continue;
-            }
-
-            return $maybeFnIndex;
         }
 
         return null;
