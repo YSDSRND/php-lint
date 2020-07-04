@@ -15,6 +15,7 @@ class Util
         '}' => -1,
         '[' => 1,
         ']' => -1,
+        '${' => 1,
     ];
     const WHITESPACE_LIKE_KINDS = [
         T_WHITESPACE,
@@ -109,6 +110,7 @@ class Util
         $increments = [
             '{' => 1,
             '}' => -1,
+            '${' => 1,
         ];
 
         // we expect to be inside a block so set the initial
