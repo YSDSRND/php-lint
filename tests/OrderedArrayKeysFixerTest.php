@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace YSDS\Lint\Tests;
 
+use PhpCsFixer\Tokenizer\Tokens;
 use YSDS\Lint\OrderedArrayKeysFixer;
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
+use YSDS\Lint\Util;
 
 class OrderedArrayKeysFixerTest extends AbstractFixerTestCase
 {
@@ -83,5 +85,40 @@ TXT,
     public function testOrdersCorrectly(string $expected, ?string $input = null)
     {
         $this->doTest($expected, $input);
+    }
+
+    public function testAppliesFilterFunction()
+    {
+        $this->fixer->configure([
+            'filter' => function (Tokens $tokens, int $index) {
+                $fnIndex = Util::findParentFunction($tokens, $index);
+                if ($fnIndex === null) {
+                    return true;
+                }
+                $nameIndex = $tokens->getNextMeaningfulToken($fnIndex);
+                return $tokens[$nameIndex]->getContent() !== 'skipMe';
+            },
+        ]);
+
+        $this->doTest(
+            <<<TXT
+<?php
+function skipMe() {
+  if (true) {
+    return ['b' => 2, 'a' => 1];
+  }
+}
+\$a = ['a' => 1, 'b' => 2];
+TXT,
+            <<<TXT
+<?php
+function skipMe() {
+  if (true) {
+    return ['b' => 2, 'a' => 1];
+  }
+}
+\$a = ['b' => 2, 'a' => 1];
+TXT
+        );
     }
 }
