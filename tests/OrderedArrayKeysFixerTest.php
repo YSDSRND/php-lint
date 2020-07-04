@@ -91,30 +91,34 @@ TXT,
     {
         $this->fixer->configure([
             'filter' => function (Tokens $tokens, int $index) {
-                $fnIndex = Util::findParentFunction($tokens, $index);
-                if ($fnIndex === null) {
+                $classIndex = Util::findParentClass($tokens, $index);
+                if ($classIndex === null) {
                     return true;
                 }
-                $nameIndex = $tokens->getNextMeaningfulToken($fnIndex);
-                return $tokens[$nameIndex]->getContent() !== 'skipMe';
+                $nameIndex = $tokens->getNextMeaningfulToken($classIndex);
+                return $tokens[$nameIndex]->getContent() !== 'SkipMe';
             },
         ]);
 
         $this->doTest(
             <<<TXT
 <?php
-function skipMe() {
-  if (true) {
-    return ['b' => 2, 'a' => 1];
+class SkipMe {
+  function yee() {
+    if (true) {
+      return ['b' => 2, 'a' => 1];
+    }
   }
 }
 \$a = ['a' => 1, 'b' => 2];
 TXT,
             <<<TXT
 <?php
-function skipMe() {
-  if (true) {
-    return ['b' => 2, 'a' => 1];
+class SkipMe {
+  function yee() {
+    if (true) {
+      return ['b' => 2, 'a' => 1];
+    }
   }
 }
 \$a = ['b' => 2, 'a' => 1];

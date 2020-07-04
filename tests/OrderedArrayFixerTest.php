@@ -81,32 +81,35 @@ TXT,
     public function testAppliesFilterFunction()
     {
         $this->fixer->configure([
-
             'filter' => function (Tokens $tokens, int $index) {
-                $fnIndex = Util::findParentFunction($tokens, $index);
-                if ($fnIndex === null) {
+                $classIndex = Util::findParentClass($tokens, $index);
+                if ($classIndex === null) {
                     return true;
                 }
-                $nameIndex = $tokens->getNextMeaningfulToken($fnIndex);
-                return $tokens[$nameIndex]->getContent() !== 'skipMe';
+                $nameIndex = $tokens->getNextMeaningfulToken($classIndex);
+                return $tokens[$nameIndex]->getContent() !== 'SkipMe';
             },
         ]);
 
         $this->doTest(
             <<<TXT
 <?php
-function skipMe() {
-  if (true) {
-    return [3, 2, 1];
+class SkipMe {
+  function yee() {
+    if (true) {
+      return [3, 2, 1];
+    }
   }
 }
 \$a = [1, 2, 3];
 TXT,
             <<<TXT
 <?php
-function skipMe() {
-  if (true) {
-    return [3, 2, 1];
+class SkipMe {
+  function yee() {
+    if (true) {
+      return [3, 2, 1];
+    }
   }
 }
 \$a = [3, 2, 1];
