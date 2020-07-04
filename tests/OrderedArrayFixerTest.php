@@ -65,6 +65,14 @@ TXT,
 ];
 TXT,
             ],
+            'should not touch sorted arrays that are incorrectly formatted' => [
+                <<<TXT
+<?php return [1,
+  4,
+       5,
+];
+TXT,
+            ],
         ];
     }
 

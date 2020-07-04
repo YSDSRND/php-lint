@@ -29,9 +29,14 @@ class OrderedArrayKeysFixer extends AbstractArrayFixer
                 return [];
             }
         }
-        usort($entries, function (ArrayEntry $a, ArrayEntry $b) {
+        $sorted = $entries;
+        usort($sorted, function (ArrayEntry $a, ArrayEntry $b) {
             return Util::getContentOfTokens($a->key) <=> Util::getContentOfTokens($b->key);
         });
-        return $entries;
+        // don't touch arrays that are already sorted.
+        if ($sorted === $entries) {
+            return [];
+        }
+        return $sorted;
     }
 }
