@@ -3,19 +3,19 @@ declare(strict_types=1);
 
 namespace YSDS\Lint;
 
+use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
 class Util
 {
     const BLOCK_INCREMENTS = [
-        '(' => 1,
-        ')' => -1,
-        '{' => 1,
-        '}' => -1,
-        '[' => 1,
-        ']' => -1,
-        '${' => 1,
+        ['(', 1],
+        [')', -1],
+        ['{', 1],
+        ['}', -1],
+        [[CT::T_ARRAY_SQUARE_BRACE_OPEN], 1],
+        [[CT::T_ARRAY_SQUARE_BRACE_CLOSE], -1],
     ];
     const WHITESPACE_LIKE_KINDS = [
         T_WHITESPACE,
@@ -46,7 +46,7 @@ class Util
             // touch the block counter if we enter or leave a block.
             // this is necessary so we won't detect delimiters while
             // inside some other piece of code.
-            $blockCounter += static::BLOCK_INCREMENTS[$token->getContent()] ?? 0;
+            $blockCounter += static::getBlockIncrementForToken($token);
             $buffer[] = $token;
         }
 
@@ -108,9 +108,8 @@ class Util
     public static function findParentBlock(Tokens $tokens, int $index): ?int
     {
         $increments = [
-            '{' => 1,
-            '}' => -1,
-            '${' => 1,
+            ['{', 1],
+            ['}', -1],
         ];
 
         // we expect to be inside a block so set the initial
@@ -120,7 +119,7 @@ class Util
         for ($i = $index; $i >= 0; --$i) {
             /* @var Token $token */
             $token = $tokens[$i];
-            $blockCounter += $increments[$token->getContent()] ?? 0;
+            $blockCounter += static::getBlockIncrementForToken($token, $increments);
 
             // notice that the block counter must be non-zero.
             // this is due to the fact that a zero block counter
@@ -180,5 +179,20 @@ class Util
         }
 
         return null;
+    }
+
+    /**
+     * @param Token $token
+     * @param array $increments
+     * @return int
+     */
+    public static function getBlockIncrementForToken(Token $token, array $increments = self::BLOCK_INCREMENTS): int
+    {
+        foreach ($increments as $incr) {
+            if ($token->equals($incr[0])) {
+                return $incr[1];
+            }
+        }
+        return 0;
     }
 }
