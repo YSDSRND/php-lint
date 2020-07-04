@@ -27,7 +27,7 @@ TXT
         $this->assertCount(18, $expr);
     }
 
-    public function testFindParentBlock()
+    public function testFindParentBlockWithCurlyBrace()
     {
         $tokens = Tokens::fromCode(<<<TXT
 <?php
@@ -39,8 +39,20 @@ function yee() {
 TXT
 );
         $idx = $tokens->getNextTokenOfKind(0, [[T_VARIABLE]]);
-        $blockIndex = Util::findParentBlock($tokens, $idx);
+        $blockIndex = Util::findParentBlock($tokens, $idx, Tokens::BLOCK_TYPE_CURLY_BRACE);
         $this->assertSame('true', $tokens[$blockIndex - 3]->getContent());
+    }
+
+    public function testFindParentBlockWithMethodInvocation()
+    {
+        $tokens = Tokens::fromCode(<<<TXT
+<?php
+myFunc([0, 1, 2, 123]);
+TXT
+        );
+        $idx = $tokens->getNextTokenOfKind(0, [[T_LNUMBER, '123']]);
+        $blockIndex = Util::findParentBlock($tokens, $idx, Tokens::BLOCK_TYPE_PARENTHESIS_BRACE);
+        $this->assertSame('myFunc', $tokens[$blockIndex - 1]->getContent());
     }
 
     public function testFindParentClass()

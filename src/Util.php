@@ -10,12 +10,18 @@ use PhpCsFixer\Tokenizer\Tokens;
 class Util
 {
     const BLOCK_INCREMENTS = [
-        ['(', 1],
-        [')', -1],
-        ['{', 1],
-        ['}', -1],
-        [[CT::T_ARRAY_SQUARE_BRACE_OPEN], 1],
-        [[CT::T_ARRAY_SQUARE_BRACE_CLOSE], -1],
+        Tokens::BLOCK_TYPE_PARENTHESIS_BRACE => [
+            ['(', 1],
+            [')', -1],
+        ],
+        Tokens::BLOCK_TYPE_CURLY_BRACE => [
+            ['{', 1],
+            ['}', -1],
+        ],
+        Tokens::BLOCK_TYPE_ARRAY_SQUARE_BRACE => [
+            [[CT::T_ARRAY_SQUARE_BRACE_OPEN, '['], 1],
+            [[CT::T_ARRAY_SQUARE_BRACE_CLOSE, ']'], -1],
+        ],
     ];
     const WHITESPACE_LIKE_KINDS = [
         T_WHITESPACE,
@@ -103,28 +109,29 @@ class Util
     /**
      * @param Tokens $tokens
      * @param int $index
+     * @param int $blockType Tokens::BLOCK_TYPE_*
      * @return int|null
      */
-    public static function findParentBlock(Tokens $tokens, int $index): ?int
+    public static function findParentBlock(Tokens $tokens, int $index, int $blockType): ?int
     {
-        $increments = [
-            ['{', 1],
-            ['}', -1],
-        ];
-
         // we expect to be inside a block so set the initial
         // block counter to some negative value.
         $blockCounter = -1;
+        $blockStartToken = static::BLOCK_INCREMENTS[$blockType][0][0] ?? null;
+
+        if ($blockStartToken === null) {
+            return null;
+        }
 
         for ($i = $index; $i >= 0; --$i) {
             /* @var Token $token */
             $token = $tokens[$i];
-            $blockCounter += static::getBlockIncrementForToken($token, $increments);
+            $blockCounter += static::getBlockIncrementForToken($token, [$blockType]);
 
             // notice that the block counter must be non-zero.
             // this is due to the fact that a zero block counter
             // means that we're not in a block at all.
-            if ($token->equals('{') && $blockCounter === 0) {
+            if ($token->equals($blockStartToken) && $blockCounter === 0) {
                 return $i;
             }
         }
@@ -139,13 +146,10 @@ class Util
      */
     public static function findParentClass(Tokens $tokens, int $index): ?int
     {
-        $increments = [
-            ['{', 1],
-            ['}', -1],
-        ];
+        $blockType = Tokens::BLOCK_TYPE_CURLY_BRACE;
 
         while ($index >= 0) {
-            $index = static::findParentBlock($tokens, $index);
+            $index = static::findParentBlock($tokens, $index, $blockType);
             if ($index === null) {
                 return null;
             }
@@ -161,7 +165,7 @@ class Util
                 if ($token->isGivenKind(T_CLASS)) {
                     return $index;
                 }
-                $incr = static::getBlockIncrementForToken($token, $increments);
+                $incr = static::getBlockIncrementForToken($token, [$blockType]);
                 if ($incr !== 0) {
                     break;
                 }
@@ -174,16 +178,24 @@ class Util
 
     /**
      * @param Token $token
-     * @param array $increments
+     * @param int[] $types array of Tokens::BLOCK_TYPE_*
      * @return int
      */
-    public static function getBlockIncrementForToken(Token $token, array $increments = self::BLOCK_INCREMENTS): int
+    public static function getBlockIncrementForToken(Token $token, array $types = []): int
     {
-        foreach ($increments as $incr) {
-            if ($token->equals($incr[0])) {
-                return $incr[1];
+        if (!$types) {
+            $types = array_keys(static::BLOCK_INCREMENTS);
+        }
+
+        foreach ($types as $type) {
+            $increments = static::BLOCK_INCREMENTS[$type] ?? [];
+            foreach ($increments as $incr) {
+                if ($token->equals($incr[0])) {
+                    return $incr[1];
+                }
             }
         }
+
         return 0;
     }
 }
