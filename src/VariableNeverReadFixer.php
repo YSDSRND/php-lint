@@ -36,19 +36,23 @@ class VariableNeverReadFixer extends AbstractFixer
                 continue;
             }
 
-            $openBraceIndex = $tokens->getNextTokenOfKind($i, ['{']);
-            $closeBraceIndex = $tokens->findBlockEnd(Tokens::BLOCK_TYPE_CURLY_BRACE, $openBraceIndex);
+            $fnBlock = $this->findFunctionBlock($tokens, $i);
+
+            // no delimiters. probably an interface declaration.
+            if ($fnBlock === []) {
+                continue;
+            }
 
             // if the function has a use()-statement we skip
             // it because we don't wanna deal with references.
             $useIndex = $tokens->getNextTokenOfKind($i, [[CT::T_USE_LAMBDA]]);
 
-            if ($useIndex && $useIndex < $openBraceIndex) {
-                $i = $closeBraceIndex;
+            if ($useIndex && $useIndex < $fnBlock[0]) {
+                $i = $fnBlock[1];
                 continue;
             }
 
-            $stuff = $this->findVariableAccessesInBlock($tokens, $openBraceIndex, $closeBraceIndex);
+            $stuff = $this->findVariableAccessesInBlock($tokens, $fnBlock[0], $fnBlock[1]);
 
             foreach ($stuff as $item) {
                 if (!$item['assignments'] || $item['reads']) {
@@ -124,14 +128,12 @@ class VariableNeverReadFixer extends AbstractFixer
             /* @var Token $token */
             $token = $tokens[$i];
 
-            // we encountered a nested function declarations.
+            // we encountered a nested function declaration.
             // this will be dealt by the top level iteration
-            // so we don't need to deal with it here.
+            // so we don't need to do anything here.
             if ($token->isGivenKind(T_FUNCTION)) {
-                $openBraceIndex = $tokens->getNextTokenOfKind($i, ['{', ';']);
-                $i = $tokens[$openBraceIndex]->equals('{')
-                    ? $tokens->findBlockEnd(Tokens::BLOCK_TYPE_CURLY_BRACE, $openBraceIndex)
-                    : $openBraceIndex;
+                $fnBlock = $this->findFunctionBlock($tokens, $i);
+                $i = $fnBlock[1];
                 continue;
             }
 
@@ -211,6 +213,26 @@ class VariableNeverReadFixer extends AbstractFixer
         return $tokens[$maybeAssignmentOperatorIndex]->equals('=')
             ? static::VARIABLE_TYPE_ASSIGNMENT
             : static::VARIABLE_TYPE_READ;
+    }
+
+    /**
+     * @param Tokens $tokens
+     * @param int $index
+     * @return int[]
+     */
+    protected function findFunctionBlock(Tokens $tokens, int $index): array
+    {
+        $maybeOpenBraceIndex = $tokens->getNextTokenOfKind($index, ['{', ';']);
+
+        // this is probably an interface.
+        if ($tokens[$maybeOpenBraceIndex]->equals(';')) {
+            return [];
+        }
+
+        return [
+            $maybeOpenBraceIndex,
+            $tokens->findBlockEnd(Tokens::BLOCK_TYPE_CURLY_BRACE, $maybeOpenBraceIndex),
+        ];
     }
 
     /**

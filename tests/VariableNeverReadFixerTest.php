@@ -150,6 +150,15 @@ function yee() {
 }
 TXT,
             ],
+            'does not crash on interfaces' => [
+                <<<TXT
+<?php
+interface X {
+  function yee();
+}
+TXT,
+
+            ],
         ];
     }
 
