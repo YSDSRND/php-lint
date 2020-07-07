@@ -198,4 +198,24 @@ class Util
 
         return 0;
     }
+
+    /**
+     * @param Tokens $tokens
+     * @param int $index
+     * @return int|null
+     */
+    public static function findIndentationToken(Tokens $tokens, int $index): ?int
+    {
+        while ($index >= 0) {
+            /* @var Token $token */
+            $token = $tokens[$index];
+
+            if ($token->isGivenKind(T_WHITESPACE) && strpos($token->getContent(), "\n") !== false) {
+                return $index;
+            }
+
+            --$index;
+        }
+        return null;
+    }
 }
