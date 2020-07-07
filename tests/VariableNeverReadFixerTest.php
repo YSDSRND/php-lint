@@ -100,6 +100,17 @@ function yee() {
 }
 TXT,
             ],
+            'skips default values in function declarations' => [
+                <<<TXT
+<?php
+function yee() {
+  return new class {
+    function boi(string \$a, array \$b = []) {
+    }
+  };
+}
+TXT,
+            ]
         ];
     }
 

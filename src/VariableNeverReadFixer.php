@@ -119,6 +119,14 @@ class VariableNeverReadFixer extends AbstractFixer
             /* @var Token $token */
             $token = $tokens[$i];
 
+            // we encountered a nested function declarations.
+            // skip the signature so we don't mess with argument
+            // defaults.
+            if ($token->isGivenKind(T_FUNCTION)) {
+                $i = $tokens->getNextTokenOfKind($i, ['{', ';']);
+                continue;
+            }
+
             if (!$token->isGivenKind(T_VARIABLE)) {
                 continue;
             }
@@ -159,11 +167,7 @@ class VariableNeverReadFixer extends AbstractFixer
             return static::VARIABLE_TYPE_WRITE;
         }
 
-        // skip destructuring statements. the reason for this is
-        // that sometimes one needs to be able to destruct an array
-        // and not use the 1st argument. PHP doesn't have a "_"
-        // operator which in most languages would mean "skip".
-        $maybeDestructuringBracket = $tokens->getTokenNotOfKindSibling($index, -1, [
+        $prevTokenIndex = $tokens->getTokenNotOfKindSibling($index, -1, [
             ',',
             [T_COMMENT],
             [T_WHITESPACE],
@@ -171,11 +175,17 @@ class VariableNeverReadFixer extends AbstractFixer
         ]);
 
         $tokensToSkip = [
+            // skip destructuring statements. the reason for this is
+            // that sometimes one needs to be able to destruct an array
+            // and not use the 1st argument. PHP doesn't have a "_"
+            // operator which in most languages would mean "skip".
             CT::T_DESTRUCTURING_SQUARE_BRACE_OPEN,
+
+            // skip static access.
             T_DOUBLE_COLON,
         ];
 
-        if ($tokens[$maybeDestructuringBracket]->isGivenKind($tokensToSkip)) {
+        if ($tokens[$prevTokenIndex]->isGivenKind($tokensToSkip)) {
             return static::VARIABLE_TYPE_SKIP_ME;
         }
 
