@@ -36,7 +36,19 @@ class VariableNeverReadFixer extends AbstractFixer
                 continue;
             }
 
-            $stuff = $this->findVariableAccessesInFunction($tokens, $i);
+            $openBraceIndex = $tokens->getNextTokenOfKind($i, ['{']);
+            $closeBraceIndex = $tokens->findBlockEnd(Tokens::BLOCK_TYPE_CURLY_BRACE, $openBraceIndex);
+
+            // if the function has a use()-statement we skip
+            // it because we don't wanna deal with references.
+            $useIndex = $tokens->getNextTokenOfKind($i, [[CT::T_USE_LAMBDA]]);
+
+            if ($useIndex && $useIndex < $openBraceIndex) {
+                $i = $closeBraceIndex;
+                continue;
+            }
+
+            $stuff = $this->findVariableAccessesInBlock($tokens, $openBraceIndex, $closeBraceIndex);
 
             foreach ($stuff as $item) {
                 if (!$item['assignments'] || $item['reads']) {
@@ -100,30 +112,26 @@ class VariableNeverReadFixer extends AbstractFixer
 
     /**
      * @param Tokens $tokens
-     * @param int $index
+     * @param int $start
+     * @param int $end
      * @return int[][][]
      */
-    protected function findVariableAccessesInFunction(Tokens $tokens, int $index): array
+    protected function findVariableAccessesInBlock(Tokens $tokens, int $start, int $end): array
     {
-        $blockStartIndex = $tokens->getNextTokenOfKind($index, ['{', ';']);
-
-        // this function declaration does not have a body. it is probably an interface.
-        if ($tokens[$blockStartIndex]->equals(';')) {
-            return [];
-        }
-
         $out = [];
-        $blockEndIndex = $tokens->findBlockEnd(Tokens::BLOCK_TYPE_CURLY_BRACE, $blockStartIndex);
 
-        for ($i = $blockStartIndex; $i < $blockEndIndex; ++$i) {
+        for ($i = $start; $i < $end; ++$i) {
             /* @var Token $token */
             $token = $tokens[$i];
 
             // we encountered a nested function declarations.
-            // skip the signature so we don't mess with argument
-            // defaults.
+            // this will be dealt by the top level iteration
+            // so we don't need to deal with it here.
             if ($token->isGivenKind(T_FUNCTION)) {
-                $i = $tokens->getNextTokenOfKind($i, ['{', ';']);
+                $openBraceIndex = $tokens->getNextTokenOfKind($i, ['{', ';']);
+                $i = $tokens[$openBraceIndex]->equals('{')
+                    ? $tokens->findBlockEnd(Tokens::BLOCK_TYPE_CURLY_BRACE, $openBraceIndex)
+                    : $openBraceIndex;
                 continue;
             }
 

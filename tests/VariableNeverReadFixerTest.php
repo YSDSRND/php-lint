@@ -119,7 +119,35 @@ function yee() {
     public \$y = 1;
   };
 }
-
+TXT,
+            ],
+            'skips functions with use(..) statements' => [
+                <<<TXT
+<?php
+\$a = function () use (&\$x) {
+  \$x = 1;
+};
+TXT,
+            ],
+            'does not detect variable access from deeper scopes' => [
+                <<<TXT
+<?php
+function yee() {
+  /* FIXME: Variable assigned but never read. */
+  \$a = 1;
+  return function () {
+    return \$a;
+  };
+}
+TXT,
+                <<<TXT
+<?php
+function yee() {
+  \$a = 1;
+  return function () {
+    return \$a;
+  };
+}
 TXT,
             ],
         ];
