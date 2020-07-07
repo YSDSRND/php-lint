@@ -92,6 +92,14 @@ TXT,
 new X(\$a . \$b);
 TXT,
             ],
+            'skips static access' => [
+                <<<TXT
+<?php
+function yee() {
+  static::\$a = 1;
+}
+TXT,
+            ],
         ];
     }
 

@@ -170,7 +170,12 @@ class VariableNeverReadFixer extends AbstractFixer
             [T_VARIABLE],
         ]);
 
-        if ($tokens[$maybeDestructuringBracket]->isGivenKind(CT::T_DESTRUCTURING_SQUARE_BRACE_OPEN)) {
+        $tokensToSkip = [
+            CT::T_DESTRUCTURING_SQUARE_BRACE_OPEN,
+            T_DOUBLE_COLON,
+        ];
+
+        if ($tokens[$maybeDestructuringBracket]->isGivenKind($tokensToSkip)) {
             return static::VARIABLE_TYPE_SKIP_ME;
         }
 
