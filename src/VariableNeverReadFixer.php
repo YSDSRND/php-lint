@@ -183,6 +183,11 @@ class VariableNeverReadFixer extends AbstractFixer
 
             // skip static access.
             T_DOUBLE_COLON,
+
+            // skip default values for instance properties.
+            T_PUBLIC,
+            T_PROTECTED,
+            T_PRIVATE,
         ];
 
         if ($tokens[$prevTokenIndex]->isGivenKind($tokensToSkip)) {

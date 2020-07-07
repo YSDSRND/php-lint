@@ -110,7 +110,18 @@ function yee() {
   };
 }
 TXT,
-            ]
+            ],
+            'skips defaults for instance properties' => [
+                <<<TXT
+<?php
+function yee() {
+  return new class {
+    public \$y = 1;
+  };
+}
+
+TXT,
+            ],
         ];
     }
 
