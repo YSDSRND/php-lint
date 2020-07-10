@@ -22,6 +22,18 @@ class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDefiniti
         // https://www.fileformat.info/info/unicode/char/00a0/index.htm
         "\u{00A0}" => "\u{0020}",
 
+        // figure space
+        // https://www.fileformat.info/info/unicode/char/2007/index.htm
+        "\u{2007}" => "\u{0020}",
+
+        // narrow no-break space
+        // https://www.fileformat.info/info/unicode/char/202f/index.htm
+        "\u{202F}" => "\u{0020}",
+
+        // work joiner
+        // https://www.fileformat.info/info/unicode/char/2060/index.htm
+        "\u{2060}" => '',
+
         // zero width space
         // https://www.fileformat.info/info/unicode/char/200b/index.htm
         "\u{200B}" => '',
