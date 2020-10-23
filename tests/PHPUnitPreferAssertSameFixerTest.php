@@ -16,6 +16,9 @@ class PHPUnitPreferAssertSameFixerTest extends AbstractFixerTestCase
     {
         return [
             ['<?php $this->assertSame(1, $num);', '<?php $this->assertEquals(1, $num);'],
+            ['<?php $this->assertSame(1.5, $num);', '<?php $this->assertEquals(1.5, $num);'],
+            ['<?php $this->assertSame(-1.5, $num);', '<?php $this->assertEquals(-1.5, $num);'],
+            ['<?php $this->assertSame(+1.5, $num);', '<?php $this->assertEquals(+1.5, $num);'],
             ['<?php $this->assertSame(true, $num);', '<?php $this->assertEquals(true, $num);'],
             ['<?php $this->assertSame(false, $num);', '<?php $this->assertEquals(false, $num);'],
             ['<?php $this->assertSame(null, $num);', '<?php $this->assertEquals(null, $num);'],

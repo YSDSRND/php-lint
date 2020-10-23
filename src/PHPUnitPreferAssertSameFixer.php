@@ -59,6 +59,13 @@ class PHPUnitPreferAssertSameFixer extends AbstractFixer
         /* @var Token $token */
         $token = $tokens[$index];
 
+        // plus and minus are apparently not part of
+        // the number tokens in PHP.
+        if ($token->equalsAny(['+', '-'])) {
+            $index++;
+            $token = $tokens[$index];
+        }
+
         // if the token is the start of an array make sure
         // every element in the array is constant-like.
         if ($token->isGivenKind(CT::T_ARRAY_SQUARE_BRACE_OPEN)) {
