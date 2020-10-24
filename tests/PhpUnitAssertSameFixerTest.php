@@ -3,13 +3,13 @@
 namespace YSDS\Lint\Tests;
 
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
-use YSDS\Lint\PHPUnitPreferAssertSameFixer;
+use YSDS\Lint\PhpUnitAssertSameFixer;
 
-class PHPUnitPreferAssertSameFixerTest extends AbstractFixerTestCase
+class PhpUnitAssertSameFixerTest extends AbstractFixerTestCase
 {
     public function createFixer()
     {
-        return new PHPUnitPreferAssertSameFixer();
+        return new PhpUnitAssertSameFixer();
     }
 
     public function assertProvider()

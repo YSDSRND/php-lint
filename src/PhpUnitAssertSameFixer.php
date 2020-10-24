@@ -9,9 +9,19 @@ use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Tokens;
 use PhpCsFixer\Tokenizer\Token;
 
-class PHPUnitPreferAssertSameFixer extends AbstractFixer
+/**
+ * PhpUnitAssertSameFixer is a fixer that replaces calls to assertEquals()
+ * with assertSame() when the expected value (1st argument) is constant-like.
+ *
+ * This fixer is similar to the built-in rule "php_unit_strict" except that
+ * it is much safer in practice. Using assertSame() for constant comparisons
+ * is almost always the correct thing to do and will tell you if the argument
+ * type is incorrect.
+ */
+class PhpUnitAssertSameFixer extends AbstractFixer
 {
     const TOKEN_ASSERT_EQUALS = [T_STRING, 'assertEquals'];
+    const TOKEN_ASSERT_SAME = [T_STRING, 'assertSame'];
     const TOKENS_CONSTANT_LIKE = [
         [T_CONSTANT_ENCAPSED_STRING],
         [T_LNUMBER],
@@ -33,11 +43,11 @@ class PHPUnitPreferAssertSameFixer extends AbstractFixer
                 continue;
             }
 
-            $openParenIndex = $tokens->getNextTokenOfKind($i, [T_STRING, '(']);
+            $openParenIndex = $tokens->getNextTokenOfKind($i, ['(']);
             $firstArgumentIndex = $tokens->getNextMeaningfulToken($openParenIndex);
 
             if ($this->isConstantLike($tokens, $firstArgumentIndex)) {
-                $tokens[$i] = new Token([T_STRING, 'assertSame']);
+                $tokens[$i] = new Token(static::TOKEN_ASSERT_SAME);
             }
         }
     }
@@ -51,7 +61,7 @@ class PHPUnitPreferAssertSameFixer extends AbstractFixer
 
     public function isCandidate(Tokens $tokens)
     {
-        return $tokens->findSequence([[T_STRING, 'assertEquals']]) !== null;
+        return $tokens->isTokenKindFound(T_STRING);
     }
 
     protected function isConstantLike(Tokens $tokens, int $index): bool
@@ -74,6 +84,7 @@ class PHPUnitPreferAssertSameFixer extends AbstractFixer
             for ($i = $index + 1; $i < $blockEnd; ++$i) {
                 /* @var Token $element */
                 $element = $tokens[$i];
+
                 if (!$element->equals(',')
                     && !$element->isWhitespace()
                     && !$element->equalsAny(static::TOKENS_CONSTANT_LIKE)) {
