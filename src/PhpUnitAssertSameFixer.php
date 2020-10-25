@@ -45,8 +45,9 @@ class PhpUnitAssertSameFixer extends AbstractFixer
 
             $openParenIndex = $tokens->getNextTokenOfKind($i, ['(']);
             $firstArgumentIndex = $tokens->getNextMeaningfulToken($openParenIndex);
+            [, $endIndex] = Util::readExpressionUntil($tokens, $firstArgumentIndex, [',']);
 
-            if ($this->isConstantLike($tokens, $firstArgumentIndex)) {
+            if (static::isConstantExpression($tokens, $firstArgumentIndex, $endIndex)) {
                 $tokens[$i] = new Token(static::TOKEN_ASSERT_SAME);
             }
         }
@@ -64,38 +65,44 @@ class PhpUnitAssertSameFixer extends AbstractFixer
         return $tokens->isTokenKindFound(T_STRING);
     }
 
-    protected function isConstantLike(Tokens $tokens, int $index): bool
+    protected static function isConstantExpression(Tokens $tokens, int $start, int $end): bool
     {
-        /* @var Token $token */
-        $token = $tokens[$index];
+        $index = $start;
 
-        // plus and minus are apparently not part of
-        // the number tokens in PHP.
-        if ($token->equalsAny(['+', '-'])) {
-            $index++;
+        // these token do not affect the constant-ness
+        // of an expression. for example, 1 + 2 is still
+        // a constant expression.
+        $toSkip = [
+            '+',
+            '-',
+            '*',
+            '/',
+            ',',
+            '.',
+            [T_WHITESPACE],
+            [T_COMMENT],
+            [T_DOC_COMMENT],
+            [CT::T_ARRAY_SQUARE_BRACE_OPEN],
+            [CT::T_ARRAY_SQUARE_BRACE_CLOSE],
+        ];
+
+        while ($index < $end) {
+            /* @var Token $token */
             $token = $tokens[$index];
-        }
 
-        // if the token is the start of an array make sure
-        // every element in the array is constant-like.
-        if ($token->isGivenKind(CT::T_ARRAY_SQUARE_BRACE_OPEN)) {
-            $blockEnd = $tokens->findBlockEnd(Tokens::BLOCK_TYPE_ARRAY_SQUARE_BRACE, $index);
-
-            for ($i = $index + 1; $i < $blockEnd; ++$i) {
-                /* @var Token $element */
-                $element = $tokens[$i];
-
-                if (!$element->equals(',')
-                    && !$element->isWhitespace()
-                    && !$element->equalsAny(static::TOKENS_CONSTANT_LIKE)) {
-                    return false;
-                }
+            if ($token->equalsAny($toSkip)) {
+                ++$index;
+                continue;
             }
 
-            return true;
+            if (!$token->equalsAny(static::TOKENS_CONSTANT_LIKE)) {
+                return false;
+            }
+
+            ++$index;
         }
 
-        return $token->equalsAny(static::TOKENS_CONSTANT_LIKE);
+        return true;
     }
 
     public function getName()
