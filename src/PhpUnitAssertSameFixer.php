@@ -2,6 +2,7 @@
 
 namespace YSDS\Lint;
 
+use SplFileInfo;
 use PhpCsFixer\AbstractFixer;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
@@ -29,9 +30,26 @@ class PhpUnitAssertSameFixer extends AbstractFixer
         [T_STRING, 'true'],
         [T_STRING, 'false'],
         [T_STRING, 'null'],
+
+        // these tokens do not affect the constant-ness
+        // of an expression. for example, 1 + 2 is still
+        // a constant expression. there are tons of other
+        // operators that we could put in here but these
+        // will cover 90% of all cases.
+        '+',
+        '-',
+        '*',
+        '/',
+        ',',
+        '.',
+        [T_WHITESPACE],
+        [T_COMMENT],
+        [T_DOC_COMMENT],
+        [CT::T_ARRAY_SQUARE_BRACE_OPEN],
+        [CT::T_ARRAY_SQUARE_BRACE_CLOSE],
     ];
 
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(SplFileInfo $file, Tokens $tokens)
     {
         $len = $tokens->count();
 
@@ -67,41 +85,13 @@ class PhpUnitAssertSameFixer extends AbstractFixer
 
     protected static function isConstantExpression(Tokens $tokens, int $start, int $end): bool
     {
-        $index = $start;
-
-        // these token do not affect the constant-ness
-        // of an expression. for example, 1 + 2 is still
-        // a constant expression.
-        $toSkip = [
-            '+',
-            '-',
-            '*',
-            '/',
-            ',',
-            '.',
-            [T_WHITESPACE],
-            [T_COMMENT],
-            [T_DOC_COMMENT],
-            [CT::T_ARRAY_SQUARE_BRACE_OPEN],
-            [CT::T_ARRAY_SQUARE_BRACE_CLOSE],
-        ];
-
-        while ($index < $end) {
+        for ($i = $start; $i < $end; ++$i) {
             /* @var Token $token */
-            $token = $tokens[$index];
-
-            if ($token->equalsAny($toSkip)) {
-                ++$index;
-                continue;
-            }
-
+            $token = $tokens[$i];
             if (!$token->equalsAny(static::TOKENS_CONSTANT_LIKE)) {
                 return false;
             }
-
-            ++$index;
         }
-
         return true;
     }
 
