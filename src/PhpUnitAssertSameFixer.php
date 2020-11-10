@@ -19,7 +19,7 @@ use PhpCsFixer\Tokenizer\Token;
  * is almost always the correct thing to do and will tell you if the argument
  * type is incorrect.
  */
-class PhpUnitAssertSameFixer extends AbstractFixer
+final class PhpUnitAssertSameFixer extends AbstractFixer
 {
     const TOKEN_ASSERT_EQUALS = [T_STRING, 'assertEquals'];
     const TOKEN_ASSERT_SAME = [T_STRING, 'assertSame'];
@@ -74,7 +74,7 @@ class PhpUnitAssertSameFixer extends AbstractFixer
     public function getDefinition()
     {
         return new FixerDefinition('Prefer assertSame() for constant assertions.', [
-            new CodeSample("<?php \$this->assertEquals(1, \$num);"),
+            new CodeSample("<?php \$this->assertEquals(1, \$num);\n"),
         ]);
     }
 

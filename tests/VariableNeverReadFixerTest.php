@@ -95,8 +95,11 @@ TXT,
             'skips static access' => [
                 <<<TXT
 <?php
-function yee() {
-  static::\$a = 1;
+class X
+{  
+  function yee() {
+    static::\$a = 1;
+  }
 }
 TXT,
             ],

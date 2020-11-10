@@ -6,7 +6,7 @@ namespace YSDS\Lint;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
 
-class OrderedArrayFixer extends AbstractArrayFixer
+final class OrderedArrayFixer extends AbstractArrayFixer
 {
     /**
      * @inheritDoc
@@ -16,8 +16,13 @@ class OrderedArrayFixer extends AbstractArrayFixer
         return new FixerDefinition(
             'Arrays with constant values should be ordered.',
             [
+                new CodeSample("<?php\n['car', 'boat'];\n"),
                 new CodeSample(
-                    "<?php\n['car', 'boat'];\n"
+                    "<?php\n['car', 'boat'];\n",
+                    [
+                        'filter' => fn () => true,
+                        'min_count' => 0,
+                    ]
                 ),
             ]
         );

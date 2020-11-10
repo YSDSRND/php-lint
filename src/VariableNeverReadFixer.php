@@ -14,7 +14,7 @@ use PhpCsFixer\Tokenizer\Tokens;
 /**
  * A linter rule that detects unused local variables.
  */
-class VariableNeverReadFixer extends AbstractFixer
+final class VariableNeverReadFixer extends AbstractFixer
 {
     const VARIABLE_TYPE_ASSIGNMENT = 0;
     const VARIABLE_TYPE_READ = 1;
@@ -100,7 +100,15 @@ class VariableNeverReadFixer extends AbstractFixer
     public function getDefinition()
     {
         return new FixerDefinition('Detects variables that are assigned but never read.', [
-            new CodeSample("<?php \$a = true;"),
+            new CodeSample(
+                <<<PHP
+<?php
+function yee() {
+  \$a = true;
+}
+
+PHP,
+            ),
         ]);
     }
 

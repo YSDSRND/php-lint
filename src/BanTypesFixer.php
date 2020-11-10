@@ -19,17 +19,17 @@ use PhpCsFixer\Tokenizer\Tokens;
  * Class BanTypesFixer
  * @package Lint
  */
-class BanTypesFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+final class BanTypesFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
 {
     /**
      * @var string[]
      */
-    protected array $types;
+    protected array $types = [];
 
     /**
      * @var string
      */
-    protected string $comment;
+    protected string $comment = '';
 
     /**
      * @param array|null $configuration
@@ -140,7 +140,9 @@ class BanTypesFixer extends AbstractFixer implements ConfigurationDefinitionFixe
         return new FixerDefinition(
             'Bans some subset of types from being used.',
             [
-                new CodeSample('<?php use App\\Car;', [
+                new CodeSample("<?php use \\bacd100b86380b4bbc9e3206a295f07f;\n"),
+                new CodeSample("<?php use App\\Car;\n", [
+                    'message' => 'Yee boi',
                     'types' => [
                         'App\\Car',
                     ],
@@ -156,7 +158,10 @@ class BanTypesFixer extends AbstractFixer implements ConfigurationDefinitionFixe
     {
         return new FixerConfigurationResolver([
             new FixerOption('message', 'Message to write next to banned types', false, 'FIXME: This type is banned.', ['string']),
-            new FixerOption('types', 'Types to ban', true, null, ['array']),
+
+            // random string as the default to make the stupid AbstractFixerTestCase
+            // happy. apparently we are not allowed to have required options anymore.
+            new FixerOption('types', 'Types to ban', false, ['\\bacd100b86380b4bbc9e3206a295f07f'], ['array']),
         ]);
     }
 

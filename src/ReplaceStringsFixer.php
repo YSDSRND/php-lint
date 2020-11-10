@@ -12,7 +12,7 @@ use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
-class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+final class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
 {
     const OPTION_REPLACEMENTS = 'replacements';
     const OPTION_FIX_COMMON = 'fix_common';
@@ -50,7 +50,7 @@ class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDefiniti
 
         $replacements = $this->configuration[static::OPTION_REPLACEMENTS] ?? [];
 
-        if ($this->configuration[static::OPTION_FIX_COMMON] ?? false) {
+        if ($this->configuration[static::OPTION_FIX_COMMON] ?? true) {
             $replacements = array_merge($replacements, static::COMMON_FIXES);
         }
 
@@ -83,7 +83,8 @@ class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDefiniti
     public function getDefinition()
     {
         return new FixerDefinition('Replaces matched strings.', [
-            new CodeSample("<?php echo \'Yee!\';", [
+            new CodeSample("<?php return '\u{00A0}';\n"),
+            new CodeSample("<?php echo 'Yee!';\n", [
                 static::OPTION_REPLACEMENTS => [
                     'Yee' => 'Boi',
                 ],
