@@ -89,14 +89,9 @@ TXT,
     public function testAppliesFilterFunction()
     {
         $this->fixer->configure([
-            'filter' => function (Tokens $tokens, int $index) {
-                $classIndex = Util::findParentClass($tokens, $index);
-                if ($classIndex === null) {
-                    return true;
-                }
-                $nameIndex = $tokens->getNextMeaningfulToken($classIndex);
-                return $tokens[$nameIndex]->getContent() !== 'SkipMe';
-            },
+            'filter' => [
+                ['class', 'not_matches', '/SkipMe/'],
+            ],
         ]);
 
         $this->doTest(

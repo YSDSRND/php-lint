@@ -14,14 +14,14 @@ use PhpCsFixer\Tokenizer\Tokens;
 abstract class AbstractArrayFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
 {
     /**
-     * @var callable
+     * @var array
      */
-    protected $filter;
+    protected array $filter = [];
 
     /**
      * @var int
      */
-    protected int $minCount;
+    protected int $minCount = 0;
 
     /**
      * @inheritDoc
@@ -30,7 +30,7 @@ abstract class AbstractArrayFixer extends AbstractFixer implements Configuration
     {
         parent::configure($configuration);
 
-        $this->filter = $configuration['filter'] ?? fn (Tokens $tokens, int $index) => true;
+        $this->filter = $configuration['filter'] ?? [];
         $this->minCount = $configuration['min_count'] ?? 0;
     }
 
@@ -40,10 +40,11 @@ abstract class AbstractArrayFixer extends AbstractFixer implements Configuration
             new FixerOption(
                 'filter',
                 <<<TXT
-Filter function used to control whether to include a matched array. The function
-should have the following signature:
+Array of conditions passed to \\YSDS\\Lint\\Filter::apply().
 
-  fn (Tokens \$tokens, int \$index): bool
+  [
+    ['class', 'matches', '/MyClazz/],
+  ]
 
 TXT,
                 false
@@ -78,7 +79,7 @@ TXT,
             /* @var Token $token */
             $token = $tokens[$i];
 
-            if (!$token->isGivenKind(CT::T_ARRAY_SQUARE_BRACE_OPEN) || !call_user_func($this->filter, $tokens, $i)) {
+            if (!$token->isGivenKind(CT::T_ARRAY_SQUARE_BRACE_OPEN) || !Filter::apply($tokens, $i, $this->filter)) {
                 continue;
             }
 

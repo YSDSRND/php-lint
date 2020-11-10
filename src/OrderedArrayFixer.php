@@ -20,7 +20,7 @@ final class OrderedArrayFixer extends AbstractArrayFixer
                 new CodeSample(
                     "<?php\n['car', 'boat'];\n",
                     [
-                        'filter' => fn () => true,
+                        'filter' => [],
                         'min_count' => 0,
                     ]
                 ),

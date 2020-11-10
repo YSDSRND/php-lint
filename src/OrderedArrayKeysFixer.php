@@ -18,7 +18,7 @@ final class OrderedArrayKeysFixer extends AbstractArrayFixer
             new CodeSample(
                 "<?php return ['b' => 2, 'a' => 1];\n",
                 [
-                    'filter' => fn () => true,
+                    'filter' => [],
                     'min_count' => 0,
                 ]
             ),
