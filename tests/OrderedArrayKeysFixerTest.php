@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace YSDS\Lint\Tests;
 
+use PhpCsFixer\Fixer\FixerInterface;
 use PhpCsFixer\Tokenizer\Tokens;
 use YSDS\Lint\OrderedArrayKeysFixer;
-use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 use YSDS\Lint\Util;
 
-class OrderedArrayKeysFixerTest extends AbstractFixerTestCase
+final class OrderedArrayKeysFixerTest extends TestCase
 {
-    protected function createFixer()
+    protected function createFixer(): FixerInterface
     {
         return new OrderedArrayKeysFixer();
     }

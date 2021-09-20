@@ -11,7 +11,7 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=7.4.0",
-        "friendsofphp/php-cs-fixer": "^2.16"
+        "friendsofphp/php-cs-fixer": "^3.1.0"
     },
     "config": {
         "sort-packages": true
@@ -30,7 +30,7 @@
         }
     },
     "scripts": {
-        "lint": "php-cs-fixer fix --dry-run --diff --diff-format=udiff --verbose --ansi",
+        "lint": "php-cs-fixer fix --dry-run --diff --verbose --ansi",
         "test": "phpunit"
     }
 }

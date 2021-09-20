@@ -5,13 +5,14 @@ namespace YSDS\Lint;
 
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 
 final class OrderedArrayFixer extends AbstractArrayFixer
 {
     /**
      * @inheritDoc
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'Arrays with constant values should be ordered.',

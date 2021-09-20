@@ -3,10 +3,9 @@
 namespace YSDS\Lint\Tests;
 
 use PhpCsFixer\Tokenizer\Tokens;
-use PHPUnit\Framework\TestCase;
 use YSDS\Lint\Filter;
 
-class FilterTest extends TestCase
+final class FilterTest extends \PHPUnit\Framework\TestCase
 {
     const SOME_COOL_CODE = <<<PHP
 <?php

@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 namespace YSDS\Lint\Tests;
 
-use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
+use PhpCsFixer\Fixer\FixerInterface;
 use YSDS\Lint\BanTypesFixer;
 
-class BanTypesFixerTest extends AbstractFixerTestCase
+final class BanTypesFixerTest extends TestCase
 {
-    protected function createFixer()
+    protected function createFixer(): FixerInterface
     {
         return new BanTypesFixer();
     }

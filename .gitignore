@@ -25,3 +25,5 @@ tests/config.php
 
 .php_cs.cache
 .php_cs
+.php-cs-fixer
+.php-cs-fixer.cache

@@ -2,12 +2,12 @@
 
 namespace YSDS\Lint\Tests;
 
-use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
+use PhpCsFixer\Fixer\FixerInterface;
 use YSDS\Lint\PhpUnitAssertSameFixer;
 
-class PhpUnitAssertSameFixerTest extends AbstractFixerTestCase
+final class PhpUnitAssertSameFixerTest extends TestCase
 {
-    public function createFixer()
+    public function createFixer(): FixerInterface
     {
         return new PhpUnitAssertSameFixer();
     }

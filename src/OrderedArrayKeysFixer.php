@@ -5,13 +5,14 @@ namespace YSDS\Lint;
 
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 
 final class OrderedArrayKeysFixer extends AbstractArrayFixer
 {
     /**
      * @inheritDoc
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition('Make sure array keys are ordered.', [
             new CodeSample("<?php return ['b' => 2, 'a' => 1];\n"),

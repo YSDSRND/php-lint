@@ -4,8 +4,10 @@ declare(strict_types = 1);
 namespace YSDS\Lint;
 
 use PhpCsFixer\AbstractFixer;
+use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
 use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
+use PhpCsFixer\FixerConfiguration\FixerConfigurationResolverInterface;
 use PhpCsFixer\FixerConfiguration\FixerOption;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
@@ -19,7 +21,7 @@ use PhpCsFixer\Tokenizer\Tokens;
  * Class BanTypesFixer
  * @package Lint
  */
-final class BanTypesFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+final class BanTypesFixer extends AbstractFixer implements ConfigurableFixerInterface
 {
     /**
      * @var string[]
@@ -34,7 +36,7 @@ final class BanTypesFixer extends AbstractFixer implements ConfigurationDefiniti
     /**
      * @param array|null $configuration
      */
-    public function configure(array $configuration = null)
+    public function configure(array $configuration): void
     {
         parent::configure($configuration);
 
@@ -47,7 +49,7 @@ final class BanTypesFixer extends AbstractFixer implements ConfigurationDefiniti
     /**
      * @inheritDoc
      */
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
         for ($i = 0; $i < $tokens->count(); ++$i) {
             $token = $tokens[$i];
@@ -135,7 +137,7 @@ final class BanTypesFixer extends AbstractFixer implements ConfigurationDefiniti
      *
      * @return FixerDefinitionInterface
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition(
             'Bans some subset of types from being used.',
@@ -154,7 +156,7 @@ final class BanTypesFixer extends AbstractFixer implements ConfigurationDefiniti
     /**
      * @inheritDoc
      */
-    public function getConfigurationDefinition()
+    public function getConfigurationDefinition(): FixerConfigurationResolverInterface
     {
         return new FixerConfigurationResolver([
             new FixerOption('message', 'Message to write next to banned types', false, 'FIXME: This type is banned.', ['string']),
@@ -168,7 +170,7 @@ final class BanTypesFixer extends AbstractFixer implements ConfigurationDefiniti
     /**
      * @inheritDoc
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         return $tokens->isAnyTokenKindsFound([
             T_USE,
@@ -180,7 +182,7 @@ final class BanTypesFixer extends AbstractFixer implements ConfigurationDefiniti
     /**
      * @inheritDoc
      */
-    public function getName()
+    public function getName(): string
     {
         return 'YSDS/' . parent::getName();
     }

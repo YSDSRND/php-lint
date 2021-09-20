@@ -7,7 +7,7 @@ use PhpCsFixer\Tokenizer\Tokens;
 use PHPUnit\Framework\TestCase;
 use YSDS\Lint\Util;
 
-class UtilTest extends TestCase
+final class UtilTest extends TestCase
 {
     public function testReadExpressionUntilDoesNotBreakWithUnknownBlockDelimiter()
     {

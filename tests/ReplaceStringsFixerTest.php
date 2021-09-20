@@ -3,12 +3,13 @@ declare(strict_types=1);
 
 namespace YSDS\Lint\Tests;
 
+use PhpCsFixer\Fixer\FixerInterface;
 use PhpCsFixer\Test\AbstractFixerTestCase;
 use YSDS\Lint\ReplaceStringsFixer;
 
-class ReplaceStringsFixerTest extends AbstractFixerTestCase
+final class ReplaceStringsFixerTest extends TestCase
 {
-    public function createFixer()
+    public function createFixer(): FixerInterface
     {
         return new ReplaceStringsFixer();
     }

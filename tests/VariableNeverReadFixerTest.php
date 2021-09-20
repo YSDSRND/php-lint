@@ -3,12 +3,13 @@ declare(strict_types=1);
 
 namespace YSDS\Lint\Tests;
 
+use PhpCsFixer\Fixer\FixerInterface;
 use PhpCsFixer\Tests\Test\AbstractFixerTestCase;
 use YSDS\Lint\VariableNeverReadFixer;
 
-class VariableNeverReadFixerTest extends AbstractFixerTestCase
+final class VariableNeverReadFixerTest extends TestCase
 {
-    public function createFixer()
+    public function createFixer(): FixerInterface
     {
         return new VariableNeverReadFixer();
     }

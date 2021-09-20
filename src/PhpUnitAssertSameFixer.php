@@ -2,6 +2,7 @@
 
 namespace YSDS\Lint;
 
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use SplFileInfo;
 use PhpCsFixer\AbstractFixer;
 use PhpCsFixer\FixerDefinition\CodeSample;
@@ -49,7 +50,7 @@ final class PhpUnitAssertSameFixer extends AbstractFixer
         [CT::T_ARRAY_SQUARE_BRACE_CLOSE],
     ];
 
-    protected function applyFix(SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(SplFileInfo $file, Tokens $tokens): void
     {
         $len = $tokens->count();
 
@@ -71,14 +72,14 @@ final class PhpUnitAssertSameFixer extends AbstractFixer
         }
     }
 
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition('Prefer assertSame() for constant assertions.', [
             new CodeSample("<?php \$this->assertEquals(1, \$num);\n"),
         ]);
     }
 
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         return $tokens->isTokenKindFound(T_STRING);
     }
@@ -95,7 +96,7 @@ final class PhpUnitAssertSameFixer extends AbstractFixer
         return true;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'YSDS/' . parent::getName();
     }

@@ -4,14 +4,16 @@ declare(strict_types=1);
 namespace YSDS\Lint;
 
 use PhpCsFixer\AbstractFixer;
+use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
 use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
+use PhpCsFixer\FixerConfiguration\FixerConfigurationResolverInterface;
 use PhpCsFixer\FixerConfiguration\FixerOption;
 use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
-abstract class AbstractArrayFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+abstract class AbstractArrayFixer extends AbstractFixer implements ConfigurableFixerInterface
 {
     /**
      * @var array
@@ -26,7 +28,7 @@ abstract class AbstractArrayFixer extends AbstractFixer implements Configuration
     /**
      * @inheritDoc
      */
-    public function configure(array $configuration = null)
+    public function configure(array $configuration): void
     {
         parent::configure($configuration);
 
@@ -34,7 +36,7 @@ abstract class AbstractArrayFixer extends AbstractFixer implements Configuration
         $this->minCount = $configuration['min_count'] ?? 0;
     }
 
-    public function getConfigurationDefinition()
+    public function getConfigurationDefinition(): FixerConfigurationResolverInterface
     {
         return new FixerConfigurationResolver([
             new FixerOption(
@@ -56,7 +58,7 @@ TXT,
     /**
      * @inheritDoc
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         return $tokens->isTokenKindFound(CT::T_ARRAY_SQUARE_BRACE_OPEN);
     }
@@ -64,7 +66,7 @@ TXT,
     /**
      * @inheritDoc
      */
-    public function getName()
+    public function getName(): string
     {
         return 'YSDS/' . parent::getName();
     }
@@ -73,7 +75,7 @@ TXT,
      * @param \SplFileInfo $file
      * @param Tokens $tokens
      */
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
         for ($i = 0; $i < $tokens->count(); ++$i) {
             /* @var Token $token */

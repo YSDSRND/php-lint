@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace YSDS\Lint;
 
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\CT;
 use SplFileInfo;
 use PhpCsFixer\AbstractFixer;
@@ -26,7 +27,7 @@ final class VariableNeverReadFixer extends AbstractFixer
      * @param SplFileInfo $file
      * @param Tokens $tokens
      */
-    protected function applyFix(SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(SplFileInfo $file, Tokens $tokens): void
     {
         for ($i = 0; $i < $tokens->count(); ++$i) {
             /* @var Token $token */
@@ -97,7 +98,7 @@ final class VariableNeverReadFixer extends AbstractFixer
     /**
      * @inheritDoc
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition('Detects variables that are assigned but never read.', [
             new CodeSample(
@@ -115,7 +116,7 @@ PHP,
     /**
      * @inheritDoc
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         return $tokens->isAnyTokenKindsFound([
             T_FUNCTION,
@@ -246,7 +247,7 @@ PHP,
     /**
      * @inheritDoc
      */
-    public function getName()
+    public function getName(): string
     {
         return 'YSDS/' . parent::getName();
     }

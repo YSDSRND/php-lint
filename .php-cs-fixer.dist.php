@@ -7,7 +7,7 @@ $finder = PhpCsFixer\Finder::create()
     ])
     ->in(__DIR__);
 
-return PhpCsFixer\Config::create()
+return (new PhpCsFixer\Config())
     ->registerCustomFixers([
         new \YSDS\Lint\ReplaceStringsFixer(),
     ])
@@ -28,7 +28,7 @@ return PhpCsFixer\Config::create()
         ],
         'no_trailing_comma_in_list_call' => true,
         'no_trailing_whitespace_in_comment' => false,
-        'trailing_comma_in_multiline_array' => true,
+        'trailing_comma_in_multiline' => true,
 
         'YSDS/replace_strings' => [
             'fix_common' => true,

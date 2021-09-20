@@ -4,15 +4,18 @@ declare(strict_types=1);
 namespace YSDS\Lint;
 
 use PhpCsFixer\AbstractFixer;
+use PhpCsFixer\Fixer\ConfigurableFixerInterface;
 use PhpCsFixer\Fixer\ConfigurationDefinitionFixerInterface;
 use PhpCsFixer\FixerConfiguration\FixerConfigurationResolver;
+use PhpCsFixer\FixerConfiguration\FixerConfigurationResolverInterface;
 use PhpCsFixer\FixerConfiguration\FixerOption;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
+use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
-final class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDefinitionFixerInterface
+final class ReplaceStringsFixer extends AbstractFixer implements ConfigurableFixerInterface
 {
     const OPTION_REPLACEMENTS = 'replacements';
     const OPTION_FIX_COMMON = 'fix_common';
@@ -44,7 +47,7 @@ final class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDe
      */
     protected array $replacements = [];
 
-    public function configure(array $configuration = null)
+    public function configure(array $configuration): void
     {
         parent::configure($configuration);
 
@@ -57,7 +60,7 @@ final class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDe
         $this->replacements = $replacements;
     }
 
-    protected function applyFix(\SplFileInfo $file, Tokens $tokens)
+    protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
     {
         for ($i = 0; $i < $tokens->count(); ++$i) {
             /* @var Token $token */
@@ -80,7 +83,7 @@ final class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDe
     /**
      * @inheritDoc
      */
-    public function getDefinition()
+    public function getDefinition(): FixerDefinitionInterface
     {
         return new FixerDefinition('Replaces matched strings.', [
             new CodeSample("<?php return '\u{00A0}';\n"),
@@ -95,7 +98,7 @@ final class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDe
     /**
      * @inheritDoc
      */
-    public function isCandidate(Tokens $tokens)
+    public function isCandidate(Tokens $tokens): bool
     {
         return true;
     }
@@ -103,7 +106,7 @@ final class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDe
     /**
      * @inheritDoc
      */
-    public function getConfigurationDefinition()
+    public function getConfigurationDefinition(): FixerConfigurationResolverInterface
     {
         return new FixerConfigurationResolver([
             new FixerOption(static::OPTION_FIX_COMMON, 'Apply common fixes (no break space, zero width space).', false),
@@ -114,7 +117,7 @@ final class ReplaceStringsFixer extends AbstractFixer implements ConfigurationDe
     /**
      * @inheritDoc
      */
-    public function getName()
+    public function getName(): string
     {
         return 'YSDS/' . parent::getName();
     }
